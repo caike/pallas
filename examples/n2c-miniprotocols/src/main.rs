@@ -28,8 +28,10 @@ async fn do_localstate_query(client: &mut NodeClient) {
     // let result = queries_v16::get_chain_block_no(client).await.unwrap();
     // info!("result: {:?}", result);
 
+    info!("Querying Current Era NOW");
+
     let era = queries_v16::get_current_era(client).await.unwrap();
-    info!("result: {:?}", era);
+    info!("ERA result: {:?}", era);
 
     // let result = queries_v16::get_block_epoch_number(client, era)
     //     .await
@@ -78,6 +80,7 @@ async fn do_localstate_query(client: &mut NodeClient) {
     // let result = queries_v16::get_cbor(client, era, query).await.unwrap();
     // println!("result: {:?}", result);
 
+    info!("Releasing agency");
     client.send_release().await.unwrap();
 }
 
@@ -134,32 +137,4 @@ async fn main() {
 
     // execute the chainsync flow from an arbitrary point in the chain
     // do_chainsync(&mut client).await;
-}
-
-// change the following to match the Cardano node named-pipe in your local
-// environment
-#[cfg(target_family = "windows")]
-const PIPE_NAME: &str = "\\\\.\\pipe\\cardano-pallas";
-
-#[cfg(target_family = "windows")]
-#[tokio::main]
-async fn main() {
-    tracing::subscriber::set_global_default(
-        tracing_subscriber::FmtSubscriber::builder()
-            .with_max_level(tracing::Level::TRACE)
-            .finish(),
-    )
-    .unwrap();
-
-    // we connect to the named-pipe of the local node. Make sure you have the right
-    // path for your environment
-    let mut client = NodeClient::connect(PIPE_NAME, PRE_PRODUCTION_MAGIC)
-        .await
-        .unwrap();
-
-    // execute an arbitrary "Local State" query against the node
-    do_localstate_query(&mut client).await;
-
-    // execute the chainsync flow from an arbitrary point in the chain
-    do_chainsync(&mut client).await;
 }
